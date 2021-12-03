@@ -27,69 +27,66 @@ inline int getKeymapRowFor(int outPin) {
   return outPin - 2;
 }
 
+// custom assignments which will be handled in the handle_modifiers function
+// int is outside the asci definition
+const int KEY_TOGGLE_LED = 999;
 
-// asciitable.com  
-// 5 rows, 7 cols
-// special chars (marked with §) must still be hardcoded in doPress()
-/*const char keyC[5][7] = {
-   {'6', '7', '8', '9', '0', '?', '§'},
-   {'a', 'z', 'u', 'i', 'o', 'p', '+'},ip
-   {'6', 'h', 'j', 'k', 'l', '\r', '-'},
-   {'a', 'n', 'm', ',', '.', '§', '#'},
-   {'§', ' ', 'd', 'f', 'g', 'y', '<'}
-};*/
-const int LEDOFFKEY = 557;
+// switch between keymaps (programmed neo2 layout)
+const int KEY_MOD_LAYER3 = 1000;
+const int KEY_MOD_LAYER4 = 1001;
+const int KEY_MOD_LAYER5 = 1002; //custom layer to add some keys missing in neo2
 
-boolean ledsOn = false;
 
-boolean isMod4 = false; // Mod4: hold keyRightAlt, lock: NUM
-int MOD3 = KEY_CAPS_LOCK; //
-int MOD4 = KEY_RIGHT_ALT; //
-int MOD4_LOCK = 556; // NUM
+// Special keys involving shortcuts
+const int KEY_WORD_FORWARD = 1003;
+const int KEY_WORD_BACK = 1004;
 
-const int KEY_OE = 148;
-const int KEY_AE = 132;
-const int KEY_UE = 129;
-const int KEY_S = 225;
+const short KEY_AE = 1005;
+const short KEY_UE = 1006;
+const short KEY_OE = 1006;
+const short KEY_S = 1007;
 
-const int MOD_RIGHT_MID = 0;
-const int MOD_CAPS_LOCK = 0;
-const int MOD_QUAD_TL = 0;
-const int MOD_QUAD_TR = 0;
-const int MOD_QUAD_BL = 0;
-const int MOD_QUAD_BR = 0;
-const int MOD_WIN = KEY_LEFT_GUI;
-const int MOD_FN = 0;
-const int MOD_ALT = KEY_LEFT_ALT;
-
+const short INCREASE_LED = 1008;
+const short DECREASE_LED = 1009;
 
 /*
- *https://www.arduino.cc/reference/en/language/functions/usb/keyboard/keyboardmodifiers/ 
- *asciitable.com
- *https://dry.sailingissues.com/us-international-keyboard-layout.html
+ * NEO2 Quertz Layout
+ *
+ * Helpful references:
+ * https://www.arduino.cc/reference/en/language/functions/usb/keyboard/keyboardmodifiers/ 
+ * asciitable.com
+ * https://dry.sailingissues.com/us-international-keyboard-layout.html
+ * 
+ * Important: layer modifiers should be the same on all keymaps, or onRelease will not be correctly identified!
  */
-int defaultMap[5][7] = {
-   {KEY_ESC,         49,             50,      51,           52,           53,           54},
-   {KEY_TAB,        113,             77,     101,          114,          116,           MOD_RIGHT_MID},
-   {MOD_CAPS_LOCK,   97,            115,     100,          102,          103,           MOD_QUAD_TR},
-   {KEY_LEFT_SHIFT, 121,            120,      99,          118,           98,           MOD_QUAD_TL},
-   {KEY_LEFT_CTRL,MOD_WIN,       MOD_FN, MOD_ALT,           32,  MOD_QUAD_BL,           MOD_QUAD_BR}
+int baseLayer[5][7] = {
+   {KEY_ESC,         49,             50,        51,         52,           53,           54},
+   {KEY_TAB,        113,             109,       101,        114,          116,           KEY_TOGGLE_LED},
+   {KEY_MOD_LAYER3,   97,            115,      100,        102,          103,           0 },
+   {KEY_LEFT_SHIFT,  121,            120,       99,        118,           98,           0 },
+   {KEY_LEFT_CTRL,  KEY_LEFT_GUI, KEY_MOD_LAYER5, KEY_LEFT_ALT,32, KEY_MOD_LAYER3,         KEY_MOD_LAYER4}
 };
 
-int keyMod3[5][7] = {
-   {LEDOFFKEY,           55,             94,   126,           96,           0,               KEY_BACKSPACE},
-   {KEY_DELETE,   33,            60,    62,          61,          38,              35},
-   {KEY_HOME,    63,            40,     41,          45,          58,              64},
-   {KEY_END,43,            37,  34,           39,           59,     KEY_RIGHT_SHIFT}, // 47
-   {MOD3,         32,  KEY_RETURN,  MOD4_LOCK,    MOD4,    KEY_RIGHT_CTRL,  KEY_RETURN} // KEY_END 61 KEY_HOME
+int neo2_layer3[5][7] = {
+   {KEY_ESC,                 49,                50,             51,         52,           53,           54},
+   {KEY_TAB,         KEY_PAGE_UP,       KEY_BACKSPACE,      KEY_UP_ARROW,KEY_DELETE, KEY_PAGE_DOWN, KEY_TOGGLE_LED},
+   {KEY_MOD_LAYER3,               KEY_HOME,      KEY_LEFT_ARROW,    KEY_DOWN_ARROW,KEY_RIGHT_ARROW,   KEY_END,   0 },
+   {KEY_LEFT_SHIFT,  121,                      120,             99,             118,           98,  0 },
+   {KEY_LEFT_CTRL,  0   ,    KEY_MOD_LAYER5,        0,              32, KEY_MOD_LAYER3,         KEY_MOD_LAYER4}
 };
 
-//NUM
-// curr used with mod4 (right alt) -> almost exactly as in neo2 layer 4
-int keyMod4[5][7] = {
-   {LEDOFFKEY,       55,     56, 57, 47, 42, KEY_BACKSPACE},
-   {KEY_TAB,  121,    55, 56, 57, 43, 45},
-   {KEY_HOME, 104,   52, 53, 54, 44, 46},
-   {KEY_END,    58, 49, 50, 51, 59, KEY_RIGHT_SHIFT}, // 47
-   {MOD3,     48,     KEY_RETURN, MOD4_LOCK, MOD4_LOCK, KEY_RIGHT_CTRL, KEY_RETURN} // KEY_END 61 KEY_HOME
+int neo2_layer4[5][7] = {
+   {KEY_ESC,         49,             50,        51,         52,           53,           54},
+   {KEY_TAB,        45,             95,       91,        93,          94,           KEY_TOGGLE_LED},
+   {KEY_MOD_LAYER3,               92,            47,      123,        125,          42,           0},
+   {KEY_LEFT_SHIFT,  35,            36,       124,        126,           39,           0},
+   {KEY_LEFT_CTRL,    0,   KEY_MOD_LAYER5,         0,         32,            KEY_MOD_LAYER3,         KEY_MOD_LAYER4}
+};
+
+int neo2_layer5[5][7] = {
+   {KEY_ESC,         49,             50,        51,         52,           53,           INCREASE_LED},
+   {KEY_TAB,        45,             95,       91,        93,          94,           DECREASE_LED},
+   {KEY_MOD_LAYER3,   92,            47,      123,        125,          42,           KEY_CAPS_LOCK}, // if you ever need caps lock, here it is
+   {KEY_LEFT_SHIFT,  35,            36,       124,        126,           39,           0},
+   {KEY_LEFT_CTRL,    0,  KEY_MOD_LAYER5,         0,         32,            KEY_MOD_LAYER3,         KEY_MOD_LAYER4}
 };

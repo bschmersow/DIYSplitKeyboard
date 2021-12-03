@@ -8,7 +8,11 @@
 
 
 /** base configuration */
-boolean circleBacklight = true;
+const boolean circleBacklight = true;
+// default led setting
+short _r = 60;
+short _g = 60;
+short _b = 60;
 
 /* 
  * its quite impossible to debug when the arduino is sending actual keypresses.  
@@ -19,12 +23,13 @@ boolean circleBacklight = true;
  * Note that enabling both at the same time might lead to missleading prints
  */
 const boolean debugHardware = false;
-const boolean debugKeymap = true;
+const boolean debugKeymap = false;
 
 // dynamic variables
 int outPinIndex = 0;
-int (*activeMap)[7] = defaultMap;
+int (*activeMap)[7] = baseLayer;
 short pressed[5][7];
+boolean ledsOn = true;
 
 
 /**
@@ -43,14 +48,16 @@ void setup() {
   }
 
   if(circleBacklight) {
-    pixels.begin(); // Init NeoPixel  
+    pixels.begin(); // Init NeoPixel
+    setLEDMode(1);
   }
 
   if(debugKeymap || debugHardware) {
     Serial.begin(9600);
+  } else {
+    Keyboard.begin();  
   }
-  Keyboard.begin();
-
+  
   for(int r=0; r<5; r++) {
     for(int c=0; c<7; c++) {
       pressed[r][c] = 0;
@@ -68,7 +75,6 @@ void loop() {
   }
   
   scanLine(outPins[outPinIndex]);
-  setLEDMode(0);
   
   if(outPinIndex >= numOutPins-1) {
     outPinIndex = 0;
@@ -147,20 +153,23 @@ inline int onKeyPressed(int row, int col) {
   
   if(pressed[row][col] == 0) {
     // was not yet pressed -> press it!
-    int c = activeMap[row][col];
-    //c = handleModifiers(c, true);
+    int key = activeMap[row][col];
+
+    // safe to matrix to register state changes
+    pressed[row][col] = 1;
+
+    // function might change assignment
+    key = handleModifiers(key, true);
+    key = handleShortcuts(key, false);
     
     if(debugKeymap) {
-      serialPrintKeymapDebug(row, col, c);
+      serialPrintKeymapDebug(row, col, key);
     }
 
     if(!debugKeymap && ! debugHardware) {
       // send the keypress to the OS
-      Keyboard.press(c);  
+      Keyboard.press(key);  
     }
-
-    // safe to matrix to register state changes
-    pressed[row][col] = 1;  
   }
 }
 
@@ -168,43 +177,21 @@ inline int onKeyReleased(int row, int col) {
   
   if(pressed[row][col] == 1) {
     // was pressed -> release it!
-    int c = activeMap[row][col];
-    //c = handleModifiers(c, false);
+    pressed[row][col] = 0;
+    
+    int key = activeMap[row][col];
+    key = handleModifiers(key, false);
+    key = handleShortcuts(key, false);
     
     if(!debugKeymap && !debugHardware) {
-      Keyboard.release(c);
+      Keyboard.release(key);
     }
-
-    // safe to matrix to register state changes
-    pressed[row][col] = 0;  
   }
 }
 
-
-
-inline void setMod4(boolean on) {
-    if(on) {
-      activeMap = keyMod4;
-    } else {
-      activeMap = defaultMap;
-    }
-}
-
-inline int handleModifiers(int dec, boolean on) {
-
-  if(dec == LEDOFFKEY && on) {
-    ledsOn = !ledsOn;
-    return 0;
-  }
-
-  boolean isModifierKey = dec == MOD4 || dec == MOD3 || dec == KEY_DELETE;
-
-   if(ledsOn && isModifierKey) {
-     setLEDMode(dec);
-   }
-
-    // Umlaute
-  if(dec == KEY_OE) {
+inline int handleShortcuts(int key, boolean on) {
+  // Umlaute with us international Keyboard layout
+  if(key == KEY_OE) {
     if(on) {
       Keyboard.press(KEY_RIGHT_ALT);
       Keyboard.press(112);
@@ -214,7 +201,7 @@ inline int handleModifiers(int dec, boolean on) {
     }
     return 0;
   }
-  if(dec == KEY_AE) {
+  if(key == KEY_AE) {
     if(on) {
       Keyboard.press(KEY_RIGHT_ALT);
       Keyboard.press(113);
@@ -224,7 +211,7 @@ inline int handleModifiers(int dec, boolean on) {
     }
     return 0;
   }
-  if(dec == KEY_UE) {
+  if(key == KEY_UE) {
     if(on) {
       Keyboard.press(KEY_RIGHT_ALT);
       Keyboard.press(121);
@@ -234,7 +221,7 @@ inline int handleModifiers(int dec, boolean on) {
     }
     return 0;
   }
-  if(dec == KEY_S) {
+  if(key == KEY_S) {
     if(on) {
       Keyboard.press(KEY_RIGHT_ALT);
       Keyboard.press(115);
@@ -244,30 +231,64 @@ inline int handleModifiers(int dec, boolean on) {
     }
     return 0;
   }
+  return key;
+}
 
-  if(dec == MOD3) {
+inline int handleModifiers(int key, boolean on) {
+
+  /* LED variations */
+  if(key == KEY_TOGGLE_LED && on) {
+    ledsOn = !ledsOn;
+
+    // turn off once on toggle
+    if(ledsOn) {
+      setLEDMode(1);
+    } else {
+      setLEDMode(-1);
+    }
+    // reset on toggle
+    _r = 60;
+    _b = 60;
+    _b = 60;
+    
+    return 0;
+  }
+
+  if(ledsOn && on) {
+    setLEDMode(key); 
+  } else {
+    setLEDMode(1); // reset on release
+  }
+
+  /* Layer mods -> set active keymap*/
+  if(key == KEY_MOD_LAYER3) {
     if(on) {
-      activeMap = keyMod3;
+      activeMap = neo2_layer3;
     } else {
-      activeMap = defaultMap;
+      activeMap = baseLayer;
     }
     return 0;
   }
-  if(dec == KEY_RIGHT_ALT) {
-    setMod4(on);
-  }
-  // toggle MOD4 ("Numlock") state
-  if(dec == MOD4_LOCK && on) {
-    if(!isMod4) {
-      setMod4(true);
-      isMod4 = true;
+
+  if(key == KEY_MOD_LAYER4) {
+    if(on) {
+      activeMap = neo2_layer4;
     } else {
-      setMod4(false);
-      isMod4 = false;
+      activeMap = baseLayer;
     }
     return 0;
   }
-  return dec;
+
+  if(key == KEY_MOD_LAYER5) {
+    if(on) {
+      activeMap = neo2_layer5;
+    } else {
+      activeMap = baseLayer;
+    }
+    return 0;
+  }
+  
+  return key;
 }
 
 /**
@@ -309,36 +330,83 @@ void serialPrintHardwareDebug(int outPin) {
   Serial.println();
 }
 
+
+
 /**
  * UTIL FUNCTIONS
  */
 void setLEDMode(int mode) {
 
-  short r = 60;
-  short g = 60;
-  short b = 60;
+  //local settings based on defaults
+  short r = _r;
+  short g = _g;
+  short b = _b;
 
-  if(mode == KEY_RIGHT_SHIFT) {
-    g = 230;
-  } else if(mode == MOD3) {
-    r = 140;
-    g = 130;
-  } else if(mode == KEY_DELETE) {
-    r = 255;
-    g = 0;
-    b = 0;
+  switch(mode) {
+    case KEY_MOD_LAYER3: 
+      r = 0;
+      g = 200;
+      b = 255;
+    break;
+
+    case KEY_MOD_LAYER4:
+      r = 100;
+      g = 40;
+      b = 255;
+    break;
+
+    case KEY_MOD_LAYER5:
+      r = 255;
+      g = 50;
+      b = 50;
+    break;
+
+    case KEY_LEFT_SHIFT: 
+      r=100;
+      g=50;
+      b=150;
+    break;
+
+    case INCREASE_LED:
+      _r+=20;
+      _g+=20;
+      _b+=20;
+      if(_r > 255) {
+        _r = 255;
+        _g = 255;
+        _b = 255;
+      }
+    break;
+
+    case DECREASE_LED:
+      _r-=20;
+      _g-=20;
+      _b-=20;
+      if(_r < 0) {
+        _r = 0;
+        _g = 0;
+        _b = 0;
+      }
+    break;   
+
+    case -1:
+      r=0;
+      g=0;
+      b=0;
+    break;
+
+    default:
+    break;
   }
 
-  if(isMod4) {
-    b = 255;
-    g = 100;
-    r = 0;
-  }
-  
-  if(!ledsOn) {
-    r = 0;
-    g = 0;
-    b = 0;
+  if(debugKeymap) {
+    Serial.print("led:");
+    Serial.print("r g b");
+    Serial.print(r);
+    Serial.print(" ");
+    Serial.print(g);
+    Serial.print(" ");
+    Serial.println(b);
   }
   
   pixels.setPixelColor(1, pixels.Color(r,g,b));
