@@ -100,43 +100,43 @@ inline int scanRow(int outPin) {
 
   int row = getKeymapRowFor(outPin);
   
-  if(digitalRead(inTab) == HIGH) {
+  if(digitalRead(col1) == HIGH) {
     onKeyPressed(row, 0);
   } else {
     onKeyReleased(row, 0);
   }
   
-  if(digitalRead(inA) == HIGH) {
+  if(digitalRead(col2) == HIGH) {
     onKeyPressed(row, 1);
   } else {
     onKeyReleased(row, 1);
   }
   
-  if(digitalRead(inS) == HIGH) {
+  if(digitalRead(col3) == HIGH) {
     onKeyPressed(row, 2);
   } else {
     onKeyReleased(row, 2);
   }
   
-  if(digitalRead(inD) == HIGH) {
+  if(digitalRead(col4) == HIGH) {
     onKeyPressed(row, 3);
   } else {
     onKeyReleased(row, 3);
   }
   
-  if(digitalRead(inF) == HIGH) {
+  if(digitalRead(col5) == HIGH) {
     onKeyPressed(row, 4);
   } else {
     onKeyReleased(row, 4);
   }
   
-  if(digitalRead(inG) == HIGH) {
+  if(digitalRead(col6) == HIGH) {
     onKeyPressed(row, 5);
   } else {
     onKeyReleased(row, 5);
   }
   
-  if(digitalRead(inThumb) == HIGH) {
+  if(digitalRead(col7) == HIGH) {
     onKeyPressed(row, 6);
   } else {
     onKeyReleased(row, 6);
@@ -160,7 +160,7 @@ inline int onKeyPressed(int row, int col) {
 
     // function might change assignment
     key = handleModifiers(key, true);
-    key = handleShortcuts(key, false);
+    key = handleShortcuts(key, true);
     
     if(debugKeymap) {
       serialPrintKeymapDebug(row, col, key);
@@ -231,6 +231,36 @@ inline int handleShortcuts(int key, boolean on) {
     }
     return 0;
   }
+  if(key == KEY_PARANTHESIS) {
+    if(on) {
+      Keyboard.press(KEY_RIGHT_ALT);
+      Keyboard.press(34);
+    } else {
+      Keyboard.release(34);
+      Keyboard.release(KEY_RIGHT_ALT);
+    }
+    return 0;
+  }
+  if(key == KEY_SINGLE_PS) {
+    if(on) {
+      Keyboard.press(KEY_RIGHT_ALT);
+      Keyboard.press(39);
+    } else {
+      Keyboard.release(39);
+      Keyboard.release(KEY_RIGHT_ALT);
+    }
+    return 0;
+  }
+  if(key == KEY_EURO) {
+    if(on) {
+      Keyboard.press(KEY_RIGHT_ALT);
+      Keyboard.press(189);
+    } else {
+      Keyboard.release(189);
+      Keyboard.release(KEY_RIGHT_ALT);
+    }
+    return 0;
+  }
   return key;
 }
 
@@ -254,18 +284,14 @@ inline int handleModifiers(int key, boolean on) {
     return 0;
   }
 
-  if(ledsOn && on) {
-    setLEDMode(key); 
-  } else {
-    setLEDMode(1); // reset on release
-  }
-
   /* Layer mods -> set active keymap*/
   if(key == KEY_MOD_LAYER3) {
     if(on) {
       activeMap = neo2_layer3;
+      setLEDMode(key);
     } else {
       activeMap = baseLayer;
+      setLEDMode(1);
     }
     return 0;
   }
@@ -273,8 +299,10 @@ inline int handleModifiers(int key, boolean on) {
   if(key == KEY_MOD_LAYER4) {
     if(on) {
       activeMap = neo2_layer4;
+      setLEDMode(key);
     } else {
       activeMap = baseLayer;
+      setLEDMode(1);
     }
     return 0;
   }
@@ -282,8 +310,10 @@ inline int handleModifiers(int key, boolean on) {
   if(key == KEY_MOD_LAYER5) {
     if(on) {
       activeMap = neo2_layer5;
+      setLEDMode(key);
     } else {
       activeMap = baseLayer;
+      setLEDMode(1);
     }
     return 0;
   }
@@ -309,13 +339,13 @@ void serialPrintKeymapDebug(int row, int col, int assignedChar) {
  * or test for dead keys
  */
 void serialPrintHardwareDebug(int outPin) {
-  short vala0 = digitalRead(inTab);
-  short vala1 = digitalRead(inA);
-  short vala2 = digitalRead(inS);
-  short vala3 = digitalRead(inD);
-  short vala4 = digitalRead(inF);
-  short vala5 = digitalRead(inG);
-  short vala6 = digitalRead(inThumb);
+  short vala0 = digitalRead(col1);
+  short vala1 = digitalRead(col2);
+  short vala2 = digitalRead(col2);
+  short vala3 = digitalRead(col4);
+  short vala4 = digitalRead(col5);
+  short vala5 = digitalRead(col6);
+  short vala6 = digitalRead(col7);
 
   Serial.print(outPin);
   Serial.print("|");

@@ -1,74 +1,115 @@
 /** WS2812 LED backlight config */
 // If a LED circle backlight is present, configure this
-#define PIN 9 // The Control (I-Pin) of the WS2812 LED / NeoPixel
+#define PIN 10 // The Control (I-Pin) of the WS2812 LED / NeoPixel
 #define NUMPIXELS 12 // Number od WS2812 LEDs / NeoPixel
 Adafruit_NeoPixel pixels = Adafruit_NeoPixel(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
 
-// input pins
-const short inTab = 7;
-const short inA = A3;
-const short inS = A1;
-const short inD = 10;
-const short inF = 15;
-const short inG = 14;
-const short inThumb = 16;
+// input pins / columns from left to right
+const short col1 = 16; // col with z
+const short col2 = 15; // h
+const short col3 = 14; // j
+const short col4 = A0; // k
+const short col5 = A1; // l
+const short col6 = A2; // :
+const short col7 = A3; // "
 
-// output pins (the pins scanning rows)
+// output pins / rows (the pins scanning rows)
 const int numOutPins = 5;
-short outPins[numOutPins] = { 2, 3, 4, 5, 6 };
+short outPins[numOutPins] = { 5, 6, 7, 8, 9 };
+
+/**
+ * Physical output pins are, unfortunately, not 
+ * directly related to array layout
+ * Remap it here to assign the hardware wired row to the resp keymap row
+ */
+inline int getKeymapRowFor(int outPin) {
+  // the right side was not soldered in order, so this had to be adjusted
+  if(outPin == 5) {
+    return 4; // 0 is connected to space / baseline
+  }
+  if(outPin == 6) {
+    return 3; //1 -> n
+  }
+  if(outPin == 7) {
+    return 2; // h-line
+  }
+  if(outPin == 8) {
+    return 1; // z-line
+  }
+  if(outPin == 9) {
+    return 0; // numbers
+  }
+}
+
+// custom assignments which will be handled in the handle_modifiers function
+// int is outside the asci definition
+const int KEY_TOGGLE_LED = 999;
+
+// switch between keymaps (programmed neo2 layout)
+const int KEY_MOD_LAYER3 = 1000;
+const int KEY_MOD_LAYER4 = 1001;
+const int KEY_MOD_LAYER5 = 1002; //custom layer to add some keys missing in neo2
 
 
-// asciitable.com  
-// 5 rows, 7 cols
-// special chars (marked with §) must still be hardcoded in doPress()
-/*const char keyC[5][7] = {
-   {'6', '7', '8', '9', '0', '?', '§'},
-   {'a', 'z', 'u', 'i', 'o', 'p', '+'},ip
-   {'6', 'h', 'j', 'k', 'l', '\r', '-'},
-   {'a', 'n', 'm', ',', '.', '§', '#'},
-   {'§', ' ', 'd', 'f', 'g', 'y', '<'}
-};*/
-const int LEDOFFKEY = 557;
+// custom shortcuts
+const int KEY_WORD_FORWARD = 1003;
+const int KEY_WORD_BACK = 1004;
+const short INCREASE_LED = 1008;
+const short DECREASE_LED = 1009;
 
-boolean ledsOn = false;
+/* Special keys involving shortcuts
+ * Some chars are best to be created with the international layout and some alt_gr combos
+ * https://theasciicode.com.ar/ascii-printable-characters/double-quotes-quotation-mark-speech-marks-ascii-code-34.html
+ */
+const short KEY_AE = 1005;
+const short KEY_UE = 1008;
+const short KEY_OE = 1006;
+const short KEY_S = 1007;
+const short KEY_PARANTHESIS = 1009;
+const short KEY_SINGLE_PS = 1010;
+const short KEY_EURO = 1011;
 
-boolean isMod4 = false; // Mod4: hold keyRightAlt, lock: NUM
-int MOD3 = KEY_CAPS_LOCK; //
-int MOD4 = KEY_RIGHT_ALT; //
-int MOD4_LOCK = 556; // NUM
 
-const int KEY_OE = 148;
-const int KEY_AE = 132;
-const int KEY_UE = 129;
-const int KEY_S = 225;
 
 /*
- *https://www.arduino.cc/reference/en/language/functions/usb/keyboard/keyboardmodifiers/ 
- *asciitable.com
- *https://dry.sailingissues.com/us-international-keyboard-layout.html
+ * NEO2 Quertz Layout
+ *
+ * Helpful references:
+ * https://www.arduino.cc/reference/en/language/functions/usb/keyboard/keyboardmodifiers/ 
+ * asciitable.com
+ * https://dry.sailingissues.com/us-international-keyboard-layout.html
+ * 
+ * Important: layer modifiers should be the same on all keymaps, or onRelease will not be correctly identified!
  */
-int defaultMap[5][7] = {
-   {LEDOFFKEY,           55,             56,   57,           48,           KEY_S,               KEY_BACKSPACE},
+int baseLayer[5][7] = {
+   {0,            55,             56,   57,           48,           KEY_S,               KEY_BACKSPACE},
    {KEY_DELETE,   122,            117,  105,          111,          112,              KEY_UE},
    {KEY_HOME,    104,            106,  107,          108,          KEY_OE,              KEY_AE},
-   {MOD4,      110,            109,  44,           46,           47,     KEY_RIGHT_SHIFT}, // 47
-   {MOD3,         32,  KEY_RETURN,  MOD4_LOCK,  MOD4  ,    KEY_RIGHT_CTRL,  KEY_RETURN} // KEY_END 61 KEY_HOME
+   {KEY_MOD_LAYER5,  110,         109,  44,           46,           47,        KEY_RIGHT_SHIFT}, // 47
+   {KEY_MOD_LAYER4,     32,  KEY_RETURN,  KEY_MOD_LAYER3, KEY_RIGHT_ALT, KEY_RIGHT_CTRL,     KEY_RETURN} // KEY_END 61 KEY_HOME
 };
 
-int keyMod3[5][7] = {
-   {LEDOFFKEY,           55,             94,   126,           96,           0,               KEY_BACKSPACE},
-   {KEY_DELETE,   33,            60,    62,          61,          38,              35},
-   {KEY_HOME,    63,            40,     41,          45,          58,              64},
-   {KEY_END,43,            37,  34,           39,           59,     KEY_RIGHT_SHIFT}, // 47
-   {MOD3,         32,  KEY_RETURN,  MOD4_LOCK,    MOD4,    KEY_RIGHT_CTRL,  KEY_RETURN} // KEY_END 61 KEY_HOME
+int neo2_layer3[5][7] = {
+   {0,              55,     56,       57,             47,             42,       KEY_BACKSPACE},
+   {KEY_TAB,        121,    55,       56,             57,             43,       45},
+   {KEY_HOME,       104,    52,       53,             54,           44,       46},
+   {KEY_MOD_LAYER5, 58,     49,       50,             51,            59,      KEY_RIGHT_SHIFT}, // 47
+   {KEY_MOD_LAYER4, 48,    KEY_RETURN, KEY_MOD_LAYER3, KEY_RIGHT_ALT, KEY_RIGHT_CTRL,     KEY_RETURN} // KEY_END 61 KEY_HOME
 };
 
-//NUM
-// curr used with mod4 (right alt) -> almost exactly as in neo2 layer 4
-int keyMod4[5][7] = {
-   {LEDOFFKEY,       55,     56, 57, 47, 42, KEY_BACKSPACE},
-   {KEY_TAB,  121,    55, 56, 57, 43, 45},
-   {KEY_HOME, 104,   52, 53, 54, 44, 46},
-   {KEY_END,    58, 49, 50, 51, 59, KEY_RIGHT_SHIFT}, // 47
-   {MOD3,     48,     KEY_RETURN, MOD4_LOCK, MOD4_LOCK, KEY_RIGHT_CTRL, KEY_RETURN} // KEY_END 61 KEY_HOME
+int neo2_layer4[5][7] = {
+   {0,                 KEY_EURO,             94,   126,           96,           0,               KEY_BACKSPACE},
+   {KEY_DELETE,         33,            60,    62,          61,          38,              34},
+   {KEY_HOME,         63,            40,     41,          45,          58,              64},
+   {KEY_MOD_LAYER5,   43,            37,  KEY_PARANTHESIS, KEY_SINGLE_PS,           59,     KEY_RIGHT_SHIFT}, // 47
+   {KEY_MOD_LAYER4,         32,  KEY_RETURN,  KEY_MOD_LAYER3, KEY_RIGHT_ALT,    KEY_RIGHT_CTRL,  KEY_RETURN} // KEY_END 61 KEY_HOME
+};
+
+// custom layer currently same as base
+int neo2_layer5[5][7] = {
+   {0,            55,             56,   57,           48,           KEY_S,               KEY_BACKSPACE},
+   {KEY_DELETE,   122,            117,  KEY_UP_ARROW,          111,          112,              KEY_UE},
+   {KEY_HOME,    104,            KEY_LEFT_ARROW,  KEY_DOWN_ARROW,          KEY_RIGHT_ARROW,          KEY_OE,              KEY_AE},
+   {KEY_MOD_LAYER5,  110,         109,  44,           46,           47,        KEY_RIGHT_SHIFT}, // 47
+   {KEY_MOD_LAYER4,     32,  KEY_RETURN,  KEY_MOD_LAYER3,  KEY_RIGHT_ALT, KEY_RIGHT_CTRL,     KEY_RETURN} // KEY_END 61 KEY_HOME
 };

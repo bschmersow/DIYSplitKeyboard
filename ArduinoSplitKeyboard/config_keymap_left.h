@@ -5,13 +5,13 @@
 Adafruit_NeoPixel pixels = Adafruit_NeoPixel(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
 
 // input pins / columns
-const short inTab = 7;
-const short inA = A3;
-const short inS = A1;
-const short inD = 10;
-const short inF = 15;
-const short inG = 14;
-const short inThumb = 16;
+const short col1 = 7;
+const short col2 = A3;
+const short col3 = A1;
+const short col4 = 10;
+const short col5 = 15;
+const short col6 = 14;
+const short col7 = 16;
 
 // output pins / rows (the pins scanning rows)
 const int numOutPins = 5;
@@ -37,17 +37,23 @@ const int KEY_MOD_LAYER4 = 1001;
 const int KEY_MOD_LAYER5 = 1002; //custom layer to add some keys missing in neo2
 
 
-// Special keys involving shortcuts
+// custom shortcuts
 const int KEY_WORD_FORWARD = 1003;
 const int KEY_WORD_BACK = 1004;
-
-const short KEY_AE = 1005;
-const short KEY_UE = 1006;
-const short KEY_OE = 1006;
-const short KEY_S = 1007;
-
 const short INCREASE_LED = 1008;
 const short DECREASE_LED = 1009;
+
+/* Special keys involving shortcuts
+ * Some chars are best to be created with the international layout and some alt_gr combos
+ * https://theasciicode.com.ar/ascii-printable-characters/double-quotes-quotation-mark-speech-marks-ascii-code-34.html
+ */
+const short KEY_AE = 1005;
+const short KEY_UE = 1008;
+const short KEY_OE = 1006;
+const short KEY_S = 1007;
+const short KEY_PARANTHESIS = 1009;
+const short KEY_SINGLE_PS = 1010;
+const short KEY_EURO = 1011;
 
 /*
  * NEO2 Quertz Layout
