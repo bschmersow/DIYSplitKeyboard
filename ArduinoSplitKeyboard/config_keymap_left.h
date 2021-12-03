@@ -36,6 +36,7 @@ const int KEY_MOD_LAYER3 = 1000;
 const int KEY_MOD_LAYER4 = 1001;
 const int KEY_MOD_LAYER5 = 1002; //custom layer to add some keys missing in neo2
 
+const int KEY_TOGGLE_LAYER3 = 1100;
 
 // custom shortcuts
 const int KEY_WORD_FORWARD = 1003;
@@ -63,36 +64,37 @@ const short KEY_EURO = 1011;
  * asciitable.com
  * https://dry.sailingissues.com/us-international-keyboard-layout.html
  * 
- * Important: layer modifiers should be the same on all keymaps, or onRelease will not be correctly identified!
+ * Important: layer modifiers should be the same on all keymaps (resp. at least on the one that has been activated, to deactivate) 
+ * or onRelease will not be correctly identified!
  */
 int baseLayer[5][7] = {
    {KEY_ESC,         49,             50,        51,         52,           53,           54},
-   {KEY_TAB,        113,             109,       101,        114,          116,           KEY_TOGGLE_LED},
-   {KEY_MOD_LAYER3,   97,            115,      100,        102,          103,           0 },
-   {KEY_LEFT_SHIFT,  121,            120,       99,        118,           98,           0 },
-   {KEY_LEFT_CTRL,  KEY_LEFT_GUI, KEY_MOD_LAYER5, KEY_LEFT_ALT,32, KEY_MOD_LAYER3,         KEY_MOD_LAYER4}
+   {KEY_TAB,        113,             119,       101,        114,          116,           KEY_RETURN},
+   {KEY_MOD_LAYER3,   97,            115,      100,        102,          103,           KEY_TOGGLE_LAYER3 },
+   {KEY_LEFT_SHIFT,  121,            120,       99,        118,           98,            39},
+   {KEY_LEFT_CTRL, KEY_LEFT_GUI , KEY_MOD_LAYER5 , KEY_LEFT_ALT,KEY_MOD_LAYER3,32,          KEY_MOD_LAYER4}
 };
 
 int neo2_layer3[5][7] = {
    {KEY_ESC,                 49,                50,             51,         52,           53,           54},
-   {KEY_TAB,         KEY_PAGE_UP,       KEY_BACKSPACE,      KEY_UP_ARROW,KEY_DELETE, KEY_PAGE_DOWN, KEY_TOGGLE_LED},
-   {KEY_MOD_LAYER3,               KEY_HOME,      KEY_LEFT_ARROW,    KEY_DOWN_ARROW,KEY_RIGHT_ARROW,   KEY_END,   0 },
+   {KEY_TAB,         KEY_PAGE_UP,       KEY_BACKSPACE,      KEY_UP_ARROW,KEY_DELETE, KEY_PAGE_DOWN, KEY_RETURN},
+   {KEY_MOD_LAYER3,               KEY_HOME,      KEY_LEFT_ARROW,    KEY_DOWN_ARROW,KEY_RIGHT_ARROW,   KEY_END,   KEY_TOGGLE_LAYER3 },
    {KEY_LEFT_SHIFT,  121,                      120,             99,             118,           98,  0 },
-   {KEY_LEFT_CTRL,  0   ,    KEY_MOD_LAYER5,        0,              32, KEY_MOD_LAYER3,         KEY_MOD_LAYER4}
+   {KEY_LEFT_CTRL,  0   ,    KEY_MOD_LAYER5,        0,      KEY_MOD_LAYER3,        32,          KEY_MOD_LAYER4}
 };
 
 int neo2_layer4[5][7] = {
    {KEY_ESC,         49,             50,        51,         52,           53,           54},
-   {KEY_TAB,        45,             95,       91,        93,          94,           KEY_TOGGLE_LED},
-   {KEY_MOD_LAYER3,               92,            47,      123,        125,          42,           0},
-   {KEY_LEFT_SHIFT,  35,            36,       124,        126,           39,           0},
-   {KEY_LEFT_CTRL,    0,   KEY_MOD_LAYER5,         0,         32,            KEY_MOD_LAYER3,         KEY_MOD_LAYER4}
+   {KEY_TAB,        45,             95,       91,        93,          94,           KEY_RETURN},
+   {KEY_MOD_LAYER3,               92,            47,      123,        125,          42,       KEY_TOGGLE_LAYER3},
+   {KEY_LEFT_SHIFT,  35,            36,       124,        126,           39,         0  }, 
+   {KEY_LEFT_CTRL,    0,   KEY_MOD_LAYER5,         0,      KEY_MOD_LAYER3,   32,                     KEY_MOD_LAYER4}
 };
 
 int neo2_layer5[5][7] = {
-   {KEY_ESC,         49,             50,        51,         52,           53,           INCREASE_LED},
-   {KEY_TAB,        45,             95,       91,        93,          94,           DECREASE_LED},
-   {KEY_MOD_LAYER3,   92,            47,      123,        125,          42,           KEY_CAPS_LOCK}, // if you ever need caps lock, here it is
-   {KEY_LEFT_SHIFT,  35,            36,       124,        126,           39,           0},
-   {KEY_LEFT_CTRL,    0,  KEY_MOD_LAYER5,         0,         32,            KEY_MOD_LAYER3,         KEY_MOD_LAYER4}
+   {KEY_ESC,         KEY_F1,             KEY_F2,        KEY_F3,         KEY_F4,           KEY_F5,           KEY_F6},
+   {KEY_TAB,        45,             95,       91,        93,          94,           KEY_TOGGLE_LED},
+   {KEY_MOD_LAYER3,   92,            47,      123,        125,          42,           DECREASE_LED}, 
+   {KEY_CAPS_LOCK,  35,            36,       124,        126,           39,           INCREASE_LED}, // if you ever need caps lock, here it is
+   {KEY_LEFT_CTRL,    KEY_LEFT_GUI,  KEY_MOD_LAYER5,         0,    KEY_MOD_LAYER3,     32,                     KEY_MOD_LAYER4}
 };

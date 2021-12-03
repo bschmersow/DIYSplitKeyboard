@@ -49,7 +49,7 @@ const int KEY_TOGGLE_LED = 999;
 const int KEY_MOD_LAYER3 = 1000;
 const int KEY_MOD_LAYER4 = 1001;
 const int KEY_MOD_LAYER5 = 1002; //custom layer to add some keys missing in neo2
-
+const int KEY_TOGGLE_LAYER3 = 1100;
 
 // custom shortcuts
 const int KEY_WORD_FORWARD = 1003;
@@ -82,7 +82,7 @@ const short KEY_EURO = 1011;
  * Important: layer modifiers should be the same on all keymaps, or onRelease will not be correctly identified!
  */
 int baseLayer[5][7] = {
-   {0,            55,             56,   57,           48,           KEY_S,               KEY_BACKSPACE},
+   {KEY_TOGGLE_LAYER3,            55,             56,   57,           48,           KEY_S,               KEY_BACKSPACE},
    {KEY_DELETE,   122,            117,  105,          111,          112,              KEY_UE},
    {KEY_HOME,    104,            106,  107,          108,          KEY_OE,              KEY_AE},
    {KEY_MOD_LAYER5,  110,         109,  44,           46,           47,        KEY_RIGHT_SHIFT}, // 47
@@ -90,7 +90,7 @@ int baseLayer[5][7] = {
 };
 
 int neo2_layer3[5][7] = {
-   {0,              55,     56,       57,             47,             42,       KEY_BACKSPACE},
+   {KEY_TOGGLE_LAYER3,              55,     56,       57,             47,             42,       KEY_BACKSPACE},
    {KEY_TAB,        121,    55,       56,             57,             43,       45},
    {KEY_HOME,       104,    52,       53,             54,           44,       46},
    {KEY_MOD_LAYER5, 58,     49,       50,             51,            59,      KEY_RIGHT_SHIFT}, // 47
@@ -98,7 +98,7 @@ int neo2_layer3[5][7] = {
 };
 
 int neo2_layer4[5][7] = {
-   {0,                 KEY_EURO,             94,   126,           96,           0,               KEY_BACKSPACE},
+   {KEY_TOGGLE_LAYER3,                 KEY_EURO,             94,   126,           96,           0,               KEY_BACKSPACE},
    {KEY_DELETE,         33,            60,    62,          61,          38,              34},
    {KEY_HOME,         63,            40,     41,          45,          58,              64},
    {KEY_MOD_LAYER5,   43,            37,  KEY_PARANTHESIS, KEY_SINGLE_PS,           59,     KEY_RIGHT_SHIFT}, // 47
@@ -107,9 +107,9 @@ int neo2_layer4[5][7] = {
 
 // custom layer currently same as base
 int neo2_layer5[5][7] = {
-   {0,            55,             56,   57,           48,           KEY_S,               KEY_BACKSPACE},
-   {KEY_DELETE,   122,            117,  KEY_UP_ARROW,          111,          112,              KEY_UE},
-   {KEY_HOME,    104,            KEY_LEFT_ARROW,  KEY_DOWN_ARROW,          KEY_RIGHT_ARROW,          KEY_OE,              KEY_AE},
+   {KEY_TOGGLE_LAYER3,            55,             56,   57,           48,           KEY_S,               KEY_BACKSPACE},
+   {KEY_TOGGLE_LED,   INCREASE_LED,            117,  KEY_UP_ARROW,          111,          112,              KEY_UE},
+   {KEY_HOME,    DECREASE_LED,            KEY_LEFT_ARROW,  KEY_DOWN_ARROW,          KEY_RIGHT_ARROW,          KEY_OE,              KEY_AE},
    {KEY_MOD_LAYER5,  110,         109,  44,           46,           47,        KEY_RIGHT_SHIFT}, // 47
    {KEY_MOD_LAYER4,     32,  KEY_RETURN,  KEY_MOD_LAYER3,  KEY_RIGHT_ALT, KEY_RIGHT_CTRL,     KEY_RETURN} // KEY_END 61 KEY_HOME
 };

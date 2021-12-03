@@ -10,9 +10,9 @@
 /** base configuration */
 const boolean circleBacklight = true;
 // default led setting
-short _r = 60;
-short _g = 60;
-short _b = 60;
+short _r = 40;
+short _g = 80;
+short _b = 100;
 
 /* 
  * its quite impossible to debug when the arduino is sending actual keypresses.  
@@ -30,6 +30,7 @@ int outPinIndex = 0;
 int (*activeMap)[7] = baseLayer;
 short pressed[5][7];
 boolean ledsOn = true;
+boolean isLayer3Locked = false; // layer 3 (arrows left / num right) has proven useful with a lock function
 
 
 /**
@@ -58,11 +59,7 @@ void setup() {
     Keyboard.begin();  
   }
   
-  for(int r=0; r<5; r++) {
-    for(int c=0; c<7; c++) {
-      pressed[r][c] = 0;
-    }
-  }
+  resetPressedMatrix();
 }
 
 /**
@@ -267,20 +264,18 @@ inline int handleShortcuts(int key, boolean on) {
 inline int handleModifiers(int key, boolean on) {
 
   /* LED variations */
-  if(key == KEY_TOGGLE_LED && on) {
-    ledsOn = !ledsOn;
-
-    // turn off once on toggle
-    if(ledsOn) {
-      setLEDMode(1);
-    } else {
+  if(key == KEY_TOGGLE_LED) {
+    if(on) {
       setLEDMode(-1);
+      ledsOn = !ledsOn;
     }
-    // reset on toggle
-    _r = 60;
-    _b = 60;
-    _b = 60;
-    
+    return 0;
+  }
+
+  if(key == INCREASE_LED || key == DECREASE_LED) {
+    if(on) {
+      setLEDMode(key);
+    }
     return 0;
   }
 
@@ -292,8 +287,24 @@ inline int handleModifiers(int key, boolean on) {
     } else {
       activeMap = baseLayer;
       setLEDMode(1);
+      resetPressedMatrix();
     }
-    return 0;
+    return 0; // return 0 both on on/off to prevent ambigous keypress
+  }
+
+  if(key == KEY_TOGGLE_LAYER3) {
+    if(on) {
+      if(!isLayer3Locked) {
+        activeMap = neo2_layer3;
+        setLEDMode(KEY_MOD_LAYER3);
+      } else {
+        activeMap = baseLayer;
+        setLEDMode(1);
+        resetPressedMatrix();
+      }
+      isLayer3Locked = !isLayer3Locked;
+    }
+    return 0; // return 0 both on on/off to prevent ambigous keypress
   }
 
   if(key == KEY_MOD_LAYER4) {
@@ -303,6 +314,7 @@ inline int handleModifiers(int key, boolean on) {
     } else {
       activeMap = baseLayer;
       setLEDMode(1);
+      resetPressedMatrix();
     }
     return 0;
   }
@@ -314,6 +326,7 @@ inline int handleModifiers(int key, boolean on) {
     } else {
       activeMap = baseLayer;
       setLEDMode(1);
+      resetPressedMatrix();
     }
     return 0;
   }
@@ -360,12 +373,22 @@ void serialPrintHardwareDebug(int outPin) {
   Serial.println();
 }
 
-
+void resetPressedMatrix() {
+  for(int r=0; r<5; r++) {
+    for(int c=0; c<7; c++) {
+      pressed[r][c] = 0;
+    }
+  }
+}
 
 /**
  * UTIL FUNCTIONS
  */
 void setLEDMode(int mode) {
+
+  if(!ledsOn) {
+    return;
+  }
 
   //local settings based on defaults
   short r = _r;
@@ -381,7 +404,7 @@ void setLEDMode(int mode) {
 
     case KEY_MOD_LAYER4:
       r = 100;
-      g = 40;
+      g = 0;
       b = 255;
     break;
 
@@ -392,6 +415,11 @@ void setLEDMode(int mode) {
     break;
 
     case KEY_LEFT_SHIFT: 
+      r=100;
+      g=50;
+      b=150;
+    break;
+    case KEY_RIGHT_SHIFT: 
       r=100;
       g=50;
       b=150;
@@ -417,9 +445,9 @@ void setLEDMode(int mode) {
         _g = 0;
         _b = 0;
       }
-    break;   
+    break;
 
-    case -1:
+    case -1: //disable
       r=0;
       g=0;
       b=0;
@@ -438,19 +466,6 @@ void setLEDMode(int mode) {
     Serial.print(" ");
     Serial.println(b);
   }
-  
-  pixels.setPixelColor(1, pixels.Color(r,g,b));
-  pixels.setPixelColor(2, pixels.Color(r,g,b));
-  pixels.setPixelColor(3, pixels.Color(r,g,b));
-  pixels.setPixelColor(4, pixels.Color(r,g,b));
-  pixels.setPixelColor(5, pixels.Color(r,g,b));
-  pixels.setPixelColor(6, pixels.Color(r,g,b));
-  pixels.setPixelColor(7, pixels.Color(r,g,b));
-  pixels.setPixelColor(8, pixels.Color(r,g,b));
-  pixels.setPixelColor(9, pixels.Color(r,g,b));
-  pixels.setPixelColor(10, pixels.Color(r,g,b));
-  pixels.setPixelColor(11, pixels.Color(r,g,b));
-  pixels.setPixelColor(12, pixels.Color(r,g,b));
+  pixels.fill(pixels.Color(r,g,b));
   pixels.show();
-
 }
