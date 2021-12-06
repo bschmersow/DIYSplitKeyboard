@@ -3,16 +3,16 @@
 #ifdef __AVR__
 #include <avr/power.h>
 #endif
-#include "config_keymap_left.h"
-//#include "config_keymap_right.h"
+//#include "config_keymap_left.h"
+#include "config_keymap_right.h"
 
 
 /** base configuration */
 const boolean circleBacklight = true;
 // default led setting
-short _r = 40;
-short _g = 80;
-short _b = 100;
+short _r = 30;
+short _g = 50;
+short _b = 80;
 
 /* 
  * its quite impossible to debug when the arduino is sending actual keypresses.  
@@ -58,8 +58,7 @@ void setup() {
   } else {
     Keyboard.begin();  
   }
-  
-  resetPressedMatrix();
+  changeKeymap(baseLayer);
 }
 
 /**
@@ -152,12 +151,14 @@ inline int onKeyPressed(int row, int col) {
     // was not yet pressed -> press it!
     int key = activeMap[row][col];
 
-    // safe to matrix to register state changes
-    pressed[row][col] = 1;
-
     // function might change assignment
     key = handleModifiers(key, true);
     key = handleShortcuts(key, true);
+
+    // safe to matrix to register state changes
+    // on keymap change (resets pressed states), doing this here (afterwards) will register 
+    // a pressed modifier key
+    pressed[row][col] = 1;
     
     if(debugKeymap) {
       serialPrintKeymapDebug(row, col, key);
@@ -172,15 +173,15 @@ inline int onKeyPressed(int row, int col) {
 
 inline int onKeyReleased(int row, int col) {
   
-  if(pressed[row][col] == 1) {
-    // was pressed -> release it!
-    pressed[row][col] = 0;
-    
+  if(pressed[row][col] == 1) {  
     int key = activeMap[row][col];
     key = handleModifiers(key, false);
     key = handleShortcuts(key, false);
+
+    // was pressed -> release it!
+    pressed[row][col] = 0;
     
-    if(!debugKeymap && !debugHardware) {
+    if(!debugKeymap && !debugHardware && key != 0) {
       Keyboard.release(key);
     }
   }
@@ -258,6 +259,48 @@ inline int handleShortcuts(int key, boolean on) {
     }
     return 0;
   }
+  if(key == KEY_WORD_FORWARD) {
+     if(on) {
+      Keyboard.press(KEY_LEFT_CTRL);
+      Keyboard.press(KEY_RIGHT_ARROW);
+    } else {
+      Keyboard.release(KEY_LEFT_CTRL);
+      Keyboard.release(KEY_RIGHT_ARROW);
+    }
+    return 0;
+  }
+  if(key == KEY_WORD_BACK) {
+     if(on) {
+      Keyboard.press(KEY_LEFT_CTRL);
+      Keyboard.press(KEY_LEFT_ARROW);
+    } else {
+      Keyboard.release(KEY_LEFT_CTRL);
+      Keyboard.release(KEY_LEFT_ARROW);
+    }
+    return 0;
+  }
+  if(key == UNDO) {
+     if(on) {
+      Keyboard.press(KEY_LEFT_CTRL);
+      Keyboard.press(122);
+    } else {
+      Keyboard.release(KEY_LEFT_CTRL);
+      Keyboard.release(122);
+    }
+    return 0;
+  }
+  if(key == REDO) {
+     if(on) {
+      Keyboard.press(KEY_LEFT_CTRL);
+      Keyboard.press(KEY_LEFT_SHIFT);
+      Keyboard.press(122);
+    } else {
+      Keyboard.release(KEY_LEFT_CTRL);
+      Keyboard.release(KEY_LEFT_SHIFT);
+      Keyboard.release(122);
+    }
+    return 0;
+  }
   return key;
 }
 
@@ -279,15 +322,23 @@ inline int handleModifiers(int key, boolean on) {
     return 0;
   }
 
+  if(key == KEY_LEFT_SHIFT || key == KEY_RIGHT_SHIFT) {
+    if(on) {
+      setLEDMode(key);
+    } else {
+      setLEDMode(1);
+    }
+    return key;
+  }
+
   /* Layer mods -> set active keymap*/
   if(key == KEY_MOD_LAYER3) {
     if(on) {
-      activeMap = neo2_layer3;
+      changeKeymap(neo2_layer3);
       setLEDMode(key);
     } else {
-      activeMap = baseLayer;
       setLEDMode(1);
-      resetPressedMatrix();
+      changeKeymap(baseLayer);
     }
     return 0; // return 0 both on on/off to prevent ambigous keypress
   }
@@ -295,12 +346,11 @@ inline int handleModifiers(int key, boolean on) {
   if(key == KEY_TOGGLE_LAYER3) {
     if(on) {
       if(!isLayer3Locked) {
-        activeMap = neo2_layer3;
+        changeKeymap(neo2_layer3);
         setLEDMode(KEY_MOD_LAYER3);
       } else {
-        activeMap = baseLayer;
         setLEDMode(1);
-        resetPressedMatrix();
+        changeKeymap(baseLayer);
       }
       isLayer3Locked = !isLayer3Locked;
     }
@@ -309,29 +359,46 @@ inline int handleModifiers(int key, boolean on) {
 
   if(key == KEY_MOD_LAYER4) {
     if(on) {
-      activeMap = neo2_layer4;
+      changeKeymap(neo2_layer4);
       setLEDMode(key);
     } else {
-      activeMap = baseLayer;
       setLEDMode(1);
-      resetPressedMatrix();
+      changeKeymap(baseLayer);
     }
     return 0;
   }
 
   if(key == KEY_MOD_LAYER5) {
     if(on) {
-      activeMap = neo2_layer5;
+      changeKeymap(neo2_layer5);
       setLEDMode(key);
     } else {
-      activeMap = baseLayer;
       setLEDMode(1);
-      resetPressedMatrix();
+      changeKeymap(baseLayer);
     }
     return 0;
   }
   
   return key;
+}
+
+/**
+ * Release all pressed keys, reset pressed matrix and set new layer
+ */
+void changeKeymap(int (*nextMap)[7]) {
+  for(int r=0; r<5; r++) {
+    for(int c=0; c<7; c++) {
+      if(pressed[r][c] != 0) { 
+        int key = activeMap[r][c];
+        key = handleShortcuts(key, false);
+        pressed[r][c] = 0;
+        if(key != 0) {
+          Keyboard.release(key); 
+        }
+      }
+    }
+  }
+  activeMap = nextMap;
 }
 
 /**
@@ -373,14 +440,6 @@ void serialPrintHardwareDebug(int outPin) {
   Serial.println();
 }
 
-void resetPressedMatrix() {
-  for(int r=0; r<5; r++) {
-    for(int c=0; c<7; c++) {
-      pressed[r][c] = 0;
-    }
-  }
-}
-
 /**
  * UTIL FUNCTIONS
  */
@@ -403,8 +462,8 @@ void setLEDMode(int mode) {
     break;
 
     case KEY_MOD_LAYER4:
-      r = 100;
-      g = 0;
+      r = 190;
+      g = 40;
       b = 255;
     break;
 
@@ -415,14 +474,14 @@ void setLEDMode(int mode) {
     break;
 
     case KEY_LEFT_SHIFT: 
-      r=100;
-      g=50;
-      b=150;
+      r=40;
+      g=100;
+      b=70;
     break;
     case KEY_RIGHT_SHIFT: 
-      r=100;
-      g=50;
-      b=150;
+      r=40;
+      g=100;
+      b=70;
     break;
 
     case INCREASE_LED:

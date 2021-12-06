@@ -49,25 +49,28 @@ const int KEY_TOGGLE_LED = 999;
 const int KEY_MOD_LAYER3 = 1000;
 const int KEY_MOD_LAYER4 = 1001;
 const int KEY_MOD_LAYER5 = 1002; //custom layer to add some keys missing in neo2
+
 const int KEY_TOGGLE_LAYER3 = 1100;
 
 // custom shortcuts
-const int KEY_WORD_FORWARD = 1003;
-const int KEY_WORD_BACK = 1004;
-const short INCREASE_LED = 1008;
-const short DECREASE_LED = 1009;
+const int KEY_WORD_FORWARD = 1203;
+const int KEY_WORD_BACK = 1204;
+const int INCREASE_LED = 1208;
+const int DECREASE_LED = 1209;
+const int UNDO = 1200;
+const int REDO = 1201;
 
 /* Special keys involving shortcuts
  * Some chars are best to be created with the international layout and some alt_gr combos
  * https://theasciicode.com.ar/ascii-printable-characters/double-quotes-quotation-mark-speech-marks-ascii-code-34.html
  */
-const short KEY_AE = 1005;
-const short KEY_UE = 1008;
-const short KEY_OE = 1006;
-const short KEY_S = 1007;
-const short KEY_PARANTHESIS = 1009;
-const short KEY_SINGLE_PS = 1010;
-const short KEY_EURO = 1011;
+const int KEY_AE = 1005;
+const int KEY_UE = 1008;
+const int KEY_OE = 1006;
+const int KEY_S = 1007;
+const int KEY_PARANTHESIS = 1009;
+const int KEY_SINGLE_PS = 1010;
+const int KEY_EURO = 1011;
 
 
 
