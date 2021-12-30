@@ -28,6 +28,7 @@ const boolean debugKeymap = false;
 // dynamic variables
 int outPinIndex = 0;
 int (*activeMap)[7] = baseLayer;
+short activeLayer = 0;
 short pressed[5][7];
 boolean ledsOn = true;
 boolean isLayer3Locked = false; // layer 3 (arrows left / num right) has proven useful with a lock function
@@ -82,8 +83,10 @@ void loop() {
 inline void scanLine(int outPin) { 
   // BEGIN SCAN
   digitalWrite(outPin, HIGH);
+  //delay(10);
   scanRow(outPin);
   digitalWrite(outPin, LOW);
+  //delay(10);
   //END SCAN
 }
 
@@ -164,9 +167,9 @@ inline int onKeyPressed(int row, int col) {
       serialPrintKeymapDebug(row, col, key);
     }
 
-    if(!debugKeymap && ! debugHardware) {
+    if( key != 0 && !debugKeymap && !debugHardware) {
       // send the keypress to the OS
-      Keyboard.press(key);  
+      Keyboard.press(key);
     }
   }
 }
@@ -193,9 +196,11 @@ inline int handleShortcuts(int key, boolean on) {
     if(on) {
       Keyboard.press(KEY_RIGHT_ALT);
       Keyboard.press(112);
+      delay(10);
+      Keyboard.releaseAll();
     } else {
-      Keyboard.release(112);
-      Keyboard.release(KEY_RIGHT_ALT);
+      //Keyboard.release(112);
+      //Keyboard.release(KEY_RIGHT_ALT);
     }
     return 0;
   }
@@ -203,9 +208,11 @@ inline int handleShortcuts(int key, boolean on) {
     if(on) {
       Keyboard.press(KEY_RIGHT_ALT);
       Keyboard.press(113);
+      delay(10);
+      Keyboard.releaseAll();
     } else {
-      Keyboard.release(113);
-      Keyboard.release(KEY_RIGHT_ALT);
+      //Keyboard.release(113);
+      //Keyboard.release(KEY_RIGHT_ALT);
     }
     return 0;
   }
@@ -213,9 +220,11 @@ inline int handleShortcuts(int key, boolean on) {
     if(on) {
       Keyboard.press(KEY_RIGHT_ALT);
       Keyboard.press(121);
+      delay(10);
+      Keyboard.releaseAll();
     } else {
-      Keyboard.release(121);
-      Keyboard.release(KEY_RIGHT_ALT);
+      //Keyboard.release(121);
+      //Keyboard.release(KEY_RIGHT_ALT);
     }
     return 0;
   }
@@ -223,9 +232,11 @@ inline int handleShortcuts(int key, boolean on) {
     if(on) {
       Keyboard.press(KEY_RIGHT_ALT);
       Keyboard.press(115);
+      delay(10);
+      Keyboard.releaseAll();
     } else {
-      Keyboard.release(115);
-      Keyboard.release(KEY_RIGHT_ALT);
+      //Keyboard.release(115);
+      //Keyboard.release(KEY_RIGHT_ALT);
     }
     return 0;
   }
@@ -233,9 +244,11 @@ inline int handleShortcuts(int key, boolean on) {
     if(on) {
       Keyboard.press(KEY_RIGHT_ALT);
       Keyboard.press(34);
+      delay(10);
+      Keyboard.releaseAll();
     } else {
-      Keyboard.release(34);
-      Keyboard.release(KEY_RIGHT_ALT);
+      //Keyboard.release(34);
+      //Keyboard.release(KEY_RIGHT_ALT);
     }
     return 0;
   }
@@ -243,9 +256,11 @@ inline int handleShortcuts(int key, boolean on) {
     if(on) {
       Keyboard.press(KEY_RIGHT_ALT);
       Keyboard.press(39);
+      delay(10);
+      Keyboard.releaseAll();
     } else {
-      Keyboard.release(39);
-      Keyboard.release(KEY_RIGHT_ALT);
+      //Keyboard.release(39);
+      //Keyboard.release(KEY_RIGHT_ALT);
     }
     return 0;
   }
@@ -253,9 +268,11 @@ inline int handleShortcuts(int key, boolean on) {
     if(on) {
       Keyboard.press(KEY_RIGHT_ALT);
       Keyboard.press(189);
+      delay(10);
+      Keyboard.releaseAll();
     } else {
-      Keyboard.release(189);
-      Keyboard.release(KEY_RIGHT_ALT);
+      //Keyboard.release(189);
+      //Keyboard.release(KEY_RIGHT_ALT);
     }
     return 0;
   }
@@ -263,9 +280,11 @@ inline int handleShortcuts(int key, boolean on) {
      if(on) {
       Keyboard.press(KEY_LEFT_CTRL);
       Keyboard.press(KEY_RIGHT_ARROW);
+      delay(10);
+      Keyboard.releaseAll();
     } else {
-      Keyboard.release(KEY_LEFT_CTRL);
-      Keyboard.release(KEY_RIGHT_ARROW);
+      //Keyboard.release(KEY_LEFT_CTRL);
+      //Keyboard.release(KEY_RIGHT_ARROW);
     }
     return 0;
   }
@@ -273,9 +292,11 @@ inline int handleShortcuts(int key, boolean on) {
      if(on) {
       Keyboard.press(KEY_LEFT_CTRL);
       Keyboard.press(KEY_LEFT_ARROW);
+      delay(10);
+      Keyboard.releaseAll();
     } else {
-      Keyboard.release(KEY_LEFT_CTRL);
-      Keyboard.release(KEY_LEFT_ARROW);
+      //Keyboard.release(KEY_LEFT_CTRL);
+      //Keyboard.release(KEY_LEFT_ARROW);
     }
     return 0;
   }
@@ -283,9 +304,11 @@ inline int handleShortcuts(int key, boolean on) {
      if(on) {
       Keyboard.press(KEY_LEFT_CTRL);
       Keyboard.press(122);
+      delay(10);
+      Keyboard.releaseAll();
     } else {
-      Keyboard.release(KEY_LEFT_CTRL);
-      Keyboard.release(122);
+      //Keyboard.release(KEY_LEFT_CTRL);
+      //Keyboard.release(122);
     }
     return 0;
   }
@@ -294,10 +317,24 @@ inline int handleShortcuts(int key, boolean on) {
       Keyboard.press(KEY_LEFT_CTRL);
       Keyboard.press(KEY_LEFT_SHIFT);
       Keyboard.press(122);
+      delay(10);
+      Keyboard.releaseAll();
     } else {
-      Keyboard.release(KEY_LEFT_CTRL);
-      Keyboard.release(KEY_LEFT_SHIFT);
-      Keyboard.release(122);
+      //Keyboard.release(KEY_LEFT_CTRL);
+      //Keyboard.release(KEY_LEFT_SHIFT);
+      //Keyboard.release(122);
+    }
+    return 0;
+  }
+  if(key == KEY_PRINT) {
+    if(on) {      
+      Keyboard.press(38);
+      Keyboard.press(42);
+      delay(10);
+      Keyboard.releaseAll();
+    } else {
+      //Keyboard.release(38);
+      //Keyboard.release(42);
     }
     return 0;
   }
@@ -333,24 +370,28 @@ inline int handleModifiers(int key, boolean on) {
 
   /* Layer mods -> set active keymap*/
   if(key == KEY_MOD_LAYER3) {
-    if(on) {
+    if(on && activeLayer != 3) {
       changeKeymap(neo2_layer3);
       setLEDMode(key);
+      activeLayer = 3;
     } else {
       setLEDMode(1);
       changeKeymap(baseLayer);
+      activeLayer = 0;
     }
     return 0; // return 0 both on on/off to prevent ambigous keypress
   }
 
   if(key == KEY_TOGGLE_LAYER3) {
-    if(on) {
+    if(on && activeLayer != 3) {
       if(!isLayer3Locked) {
         changeKeymap(neo2_layer3);
         setLEDMode(KEY_MOD_LAYER3);
+        activeLayer = 3;
       } else {
         setLEDMode(1);
         changeKeymap(baseLayer);
+        activeLayer = 0;
       }
       isLayer3Locked = !isLayer3Locked;
     }
@@ -358,23 +399,27 @@ inline int handleModifiers(int key, boolean on) {
   }
 
   if(key == KEY_MOD_LAYER4) {
-    if(on) {
+    if(on && activeLayer != 4) {
       changeKeymap(neo2_layer4);
       setLEDMode(key);
+      activeLayer = 4;
     } else {
       setLEDMode(1);
       changeKeymap(baseLayer);
+      activeLayer = 0;
     }
     return 0;
   }
 
   if(key == KEY_MOD_LAYER5) {
-    if(on) {
+    if(on && activeLayer != 5) {
       changeKeymap(neo2_layer5);
       setLEDMode(key);
+      activeLayer = 5;
     } else {
       setLEDMode(1);
       changeKeymap(baseLayer);
+      activeLayer = 0;
     }
     return 0;
   }
@@ -388,16 +433,10 @@ inline int handleModifiers(int key, boolean on) {
 void changeKeymap(int (*nextMap)[7]) {
   for(int r=0; r<5; r++) {
     for(int c=0; c<7; c++) {
-      if(pressed[r][c] != 0) { 
-        int key = activeMap[r][c];
-        key = handleShortcuts(key, false);
-        pressed[r][c] = 0;
-        if(key != 0) {
-          Keyboard.release(key); 
-        }
-      }
+      pressed[r][c] = 0;
     }
   }
+  Keyboard.releaseAll();
   activeMap = nextMap;
 }
 
@@ -421,7 +460,7 @@ void serialPrintKeymapDebug(int row, int col, int assignedChar) {
 void serialPrintHardwareDebug(int outPin) {
   short vala0 = digitalRead(col1);
   short vala1 = digitalRead(col2);
-  short vala2 = digitalRead(col2);
+  short vala2 = digitalRead(col3);
   short vala3 = digitalRead(col4);
   short vala4 = digitalRead(col5);
   short vala5 = digitalRead(col6);

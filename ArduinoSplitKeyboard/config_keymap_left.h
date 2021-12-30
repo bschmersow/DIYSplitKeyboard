@@ -57,6 +57,7 @@ const int KEY_S = 1007;
 const int KEY_PARANTHESIS = 1009;
 const int KEY_SINGLE_PS = 1010;
 const int KEY_EURO = 1011;
+const int KEY_PRINT= 1012;
 
 /*
  * NEO2 Quertz Layout
@@ -73,7 +74,7 @@ int baseLayer[5][7] = {
    {KEY_ESC,         49,             50,        51,         52,           53,           54},
    {KEY_TAB,        113,             119,       101,        114,          116,           KEY_RETURN},
    {KEY_MOD_LAYER3,   97,            115,      100,        102,          103,           KEY_TOGGLE_LAYER3 },
-   {KEY_LEFT_SHIFT,  121,            120,       99,        118,           98,            39},
+   {KEY_LEFT_SHIFT,  121,            120,       99,        118,           98,            0},
    {KEY_LEFT_CTRL, KEY_LEFT_GUI , KEY_MOD_LAYER5 , KEY_LEFT_ALT,KEY_MOD_LAYER4,32,          KEY_MOD_LAYER3}
 };
 
@@ -81,8 +82,8 @@ int neo2_layer3[5][7] = {
    {KEY_ESC,                 49,                50,             51,         52,           53,           KEY_PAGE_UP},
    {KEY_TAB,         KEY_HOME,       KEY_BACKSPACE,      KEY_UP_ARROW,KEY_DELETE, KEY_END, KEY_PAGE_DOWN},
    {KEY_MOD_LAYER3,               KEY_WORD_BACK,      KEY_LEFT_ARROW,    KEY_DOWN_ARROW,KEY_RIGHT_ARROW,   KEY_WORD_FORWARD,   KEY_TOGGLE_LAYER3 },
-   {KEY_LEFT_SHIFT,  UNDO,              REDO,             99,             118,           98,  0 },
-   {KEY_LEFT_CTRL,  0   ,    KEY_MOD_LAYER5,        0,      KEY_MOD_LAYER4,        32,          KEY_MOD_LAYER3}
+   {KEY_LEFT_SHIFT,  UNDO,              REDO,             99,             118,           98,  KEY_PRINT},
+   {KEY_LEFT_CTRL,  KEY_LEFT_GUI  ,    KEY_MOD_LAYER5,  KEY_LEFT_ALT,      KEY_MOD_LAYER4,        32,          KEY_MOD_LAYER3}
 };
 
 int neo2_layer4[5][7] = {
@@ -90,7 +91,7 @@ int neo2_layer4[5][7] = {
    {KEY_TAB,        45,             95,       91,        93,          94,           KEY_RETURN},
    {KEY_MOD_LAYER3,               92,            47,      123,        125,          42,       KEY_TOGGLE_LAYER3},
    {KEY_LEFT_SHIFT,  35,            36,       124,        126,           39,         0  }, 
-   {KEY_LEFT_CTRL,    0,   KEY_MOD_LAYER5,         0,      KEY_MOD_LAYER4,   32,                     KEY_MOD_LAYER3}
+   {KEY_LEFT_CTRL,  KEY_LEFT_GUI,   KEY_MOD_LAYER5,   KEY_LEFT_ALT,      KEY_MOD_LAYER4,   32,                     KEY_MOD_LAYER3}
 };
 
 int neo2_layer5[5][7] = {
@@ -98,5 +99,5 @@ int neo2_layer5[5][7] = {
    {KEY_TAB,        45,             95,       91,        93,          94,           KEY_TOGGLE_LED},
    {KEY_MOD_LAYER3,   92,            47,      123,        125,          42,           DECREASE_LED}, 
    {KEY_CAPS_LOCK,  35,            36,       124,        126,           39,           INCREASE_LED}, // if you ever need caps lock, here it is
-   {KEY_LEFT_CTRL,    KEY_LEFT_GUI,  KEY_MOD_LAYER5,         0,    KEY_MOD_LAYER4,     32,                     KEY_MOD_LAYER3}
+   {KEY_LEFT_CTRL,    KEY_LEFT_GUI,  KEY_MOD_LAYER5,    KEY_LEFT_ALT,    KEY_MOD_LAYER4,     32,                     KEY_MOD_LAYER3}
 };

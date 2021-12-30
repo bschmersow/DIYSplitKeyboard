@@ -71,6 +71,7 @@ const int KEY_S = 1007;
 const int KEY_PARANTHESIS = 1009;
 const int KEY_SINGLE_PS = 1010;
 const int KEY_EURO = 1011;
+const int KEY_PRINT= 1012;
 
 
 
@@ -86,33 +87,33 @@ const int KEY_EURO = 1011;
  */
 int baseLayer[5][7] = {
    {KEY_TOGGLE_LAYER3,            55,             56,   57,           48,           KEY_S,               KEY_BACKSPACE},
-   {KEY_DELETE,   122,            117,  105,          111,          112,              KEY_UE},
-   {KEY_HOME,    104,            106,  107,          108,          KEY_OE,              KEY_AE},
+   {KEY_RETURN,   122,            117,  105,          111,          112,              KEY_UE},
+   {KEY_DELETE,    104,            106,  107,          108,          KEY_OE,              KEY_AE},
    {KEY_MOD_LAYER5,  110,         109,  44,           46,           47,        KEY_RIGHT_SHIFT}, // 47
-   {KEY_MOD_LAYER4,     32,  KEY_RETURN,  KEY_MOD_LAYER3, KEY_RIGHT_ALT, KEY_RIGHT_CTRL,     KEY_RETURN} // KEY_END 61 KEY_HOME
+   {KEY_MOD_LAYER4,     32,  KEY_MOD_LAYER3,  KEY_MOD_LAYER4, KEY_RIGHT_ALT, KEY_RIGHT_CTRL,     KEY_RETURN} // KEY_END 61 KEY_HOME
 };
 
 int neo2_layer3[5][7] = {
    {KEY_TOGGLE_LAYER3,              55,     56,       57,             47,             42,       KEY_BACKSPACE},
-   {KEY_TAB,        121,    55,       56,             57,             43,       45},
-   {KEY_HOME,       104,    52,       53,             54,           44,       46},
+   {KEY_RETURN,        61,    55,       56,             57,             43,       45},
+   {KEY_DELETE,       104,    52,       53,             54,           44,       46},
    {KEY_MOD_LAYER5, 58,     49,       50,             51,            59,      KEY_RIGHT_SHIFT}, // 47
-   {KEY_MOD_LAYER4, 48,    KEY_RETURN, KEY_MOD_LAYER3, KEY_RIGHT_ALT, KEY_RIGHT_CTRL,     KEY_RETURN} // KEY_END 61 KEY_HOME
+   {KEY_MOD_LAYER4, 48,    KEY_MOD_LAYER3, KEY_MOD_LAYER4, KEY_RIGHT_ALT, KEY_RIGHT_CTRL,     KEY_RETURN} // KEY_END 61 KEY_HOME
 };
 
 int neo2_layer4[5][7] = {
    {KEY_TOGGLE_LAYER3,                 KEY_EURO,             94,   126,           96,           0,               KEY_BACKSPACE},
-   {KEY_DELETE,         33,            60,    62,          61,          38,              34},
-   {KEY_HOME,         63,            40,     41,          45,          58,              64},
-   {KEY_MOD_LAYER5,   43,            37,  KEY_PARANTHESIS, KEY_SINGLE_PS,           59,     KEY_RIGHT_SHIFT}, // 47
-   {KEY_MOD_LAYER4,         32,  KEY_RETURN,  KEY_MOD_LAYER3, KEY_RIGHT_ALT,    KEY_RIGHT_CTRL,  KEY_RETURN} // KEY_END 61 KEY_HOME
-};
+   {KEY_RETURN,         33,            60,    62,          61,          38,              34},
+   {KEY_DELETE,         63,            40,     41,          45,          58,              64},
+   {0,   43,            37,  34, 39,           59,     KEY_RIGHT_SHIFT}, // 47
+   {KEY_MOD_LAYER4,         32,  KEY_MOD_LAYER3,  KEY_MOD_LAYER4, KEY_RIGHT_ALT,    KEY_RIGHT_CTRL,  KEY_RETURN} // KEY_END 61 KEY_HOME
+}; // bug in right side: if mod4 / mod5 key pressed, flickers between layers. set mod5 null in this layer
 
 // custom layer currently same as base
 int neo2_layer5[5][7] = {
    {KEY_TOGGLE_LAYER3,            55,             56,   57,           48,           KEY_S,               KEY_BACKSPACE},
    {KEY_TOGGLE_LED,   INCREASE_LED,            117,  KEY_UP_ARROW,          111,          112,              KEY_UE},
-   {KEY_HOME,    DECREASE_LED,            KEY_LEFT_ARROW,  KEY_DOWN_ARROW,          KEY_RIGHT_ARROW,          KEY_OE,              KEY_AE},
-   {KEY_MOD_LAYER5,  110,         109,  44,           46,           47,        KEY_RIGHT_SHIFT}, // 47
-   {KEY_MOD_LAYER4,     32,  KEY_RETURN,  KEY_MOD_LAYER3,  KEY_RIGHT_ALT, KEY_RIGHT_CTRL,     KEY_RETURN} // KEY_END 61 KEY_HOME
+   {KEY_DELETE,    DECREASE_LED,            KEY_LEFT_ARROW,  KEY_DOWN_ARROW,          KEY_RIGHT_ARROW,          KEY_OE,              KEY_AE},
+   {KEY_MOD_LAYER5,  0,         0,  44,           46,           47,        KEY_RIGHT_SHIFT}, // 47
+  {KEY_MOD_LAYER4,     32,  KEY_MOD_LAYER3,  KEY_MOD_LAYER4,  KEY_RIGHT_ALT, KEY_RIGHT_CTRL,     KEY_RETURN} // KEY_END 61 KEY_HOME
 };
