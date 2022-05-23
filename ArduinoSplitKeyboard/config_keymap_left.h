@@ -54,10 +54,7 @@ const int KEY_AE = 1005;
 const int KEY_UE = 1008;
 const int KEY_OE = 1006;
 const int KEY_S = 1007;
-const int KEY_PARANTHESIS = 1009;
-const int KEY_SINGLE_PS = 1010;
-const int KEY_EURO = 1011;
-const int KEY_PRINT= 1012;
+const int KEY_PRINT = 206;
 
 /*
  * NEO2 Quertz Layout
@@ -74,10 +71,10 @@ int baseLayer[5][7] = {
    {KEY_ESC,         49,             50,        51,         52,           53,           54},
    {KEY_TAB,        113,             119,       101,        114,          116,           KEY_RETURN},
    {KEY_MOD_LAYER3,   97,            115,      100,        102,          103,           KEY_TOGGLE_LAYER3 },
-   {KEY_LEFT_SHIFT,  121,            120,       99,        118,           98,            0},
+   {KEY_LEFT_SHIFT,  121,            120,       99,        118,           98,            KEY_PRINT},
    {KEY_LEFT_CTRL, KEY_LEFT_GUI , KEY_MOD_LAYER5 , KEY_LEFT_ALT,KEY_MOD_LAYER4,32,          KEY_MOD_LAYER3}
 };
-
+           
 int neo2_layer3[5][7] = {
    {KEY_ESC,                 49,                50,             51,         52,           53,           KEY_PAGE_UP},
    {KEY_TAB,         KEY_HOME,       KEY_BACKSPACE,      KEY_UP_ARROW,KEY_DELETE, KEY_END, KEY_PAGE_DOWN},

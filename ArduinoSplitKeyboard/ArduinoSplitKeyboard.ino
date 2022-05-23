@@ -6,13 +6,14 @@
 //#include "config_keymap_left.h"
 #include "config_keymap_right.h"
 
-
 /** base configuration */
 const boolean circleBacklight = true;
 // default led setting
 short _r = 30;
 short _g = 50;
 short _b = 80;
+
+int minLatency = 20;
 
 /* 
  * its quite impossible to debug when the arduino is sending actual keypresses.  
@@ -83,10 +84,8 @@ void loop() {
 inline void scanLine(int outPin) { 
   // BEGIN SCAN
   digitalWrite(outPin, HIGH);
-  //delay(10);
   scanRow(outPin);
   digitalWrite(outPin, LOW);
-  //delay(10);
   //END SCAN
 }
 
@@ -149,8 +148,9 @@ inline int scanRow(int outPin) {
  * So the state is stored in a matrix and checked for changes
  */
 inline int onKeyPressed(int row, int col) {
-  
+
   if(pressed[row][col] == 0) {
+              
     // was not yet pressed -> press it!
     int key = activeMap[row][col];
 
@@ -161,7 +161,7 @@ inline int onKeyPressed(int row, int col) {
     // safe to matrix to register state changes
     // on keymap change (resets pressed states), doing this here (afterwards) will register 
     // a pressed modifier key
-    pressed[row][col] = 1;
+    pressed[row][col] = millis();
     
     if(debugKeymap) {
       serialPrintKeymapDebug(row, col, key);
@@ -176,18 +176,19 @@ inline int onKeyPressed(int row, int col) {
 
 inline int onKeyReleased(int row, int col) {
   
-  if(pressed[row][col] == 1) {  
+  if(pressed[row][col] != 0) {
+    
     int key = activeMap[row][col];
     key = handleModifiers(key, false);
     key = handleShortcuts(key, false);
 
     // was pressed -> release it!
     pressed[row][col] = 0;
-    
-    if(!debugKeymap && !debugHardware && key != 0) {
+
+    if(key != 0) {
       Keyboard.release(key);
     }
-  }
+  }      
 }
 
 inline int handleShortcuts(int key, boolean on) {
@@ -240,42 +241,6 @@ inline int handleShortcuts(int key, boolean on) {
     }
     return 0;
   }
-  if(key == KEY_PARANTHESIS) {
-    if(on) {
-      Keyboard.press(KEY_RIGHT_ALT);
-      Keyboard.press(34);
-      delay(10);
-      Keyboard.releaseAll();
-    } else {
-      //Keyboard.release(34);
-      //Keyboard.release(KEY_RIGHT_ALT);
-    }
-    return 0;
-  }
-  if(key == KEY_SINGLE_PS) {
-    if(on) {
-      Keyboard.press(KEY_RIGHT_ALT);
-      Keyboard.press(39);
-      delay(10);
-      Keyboard.releaseAll();
-    } else {
-      //Keyboard.release(39);
-      //Keyboard.release(KEY_RIGHT_ALT);
-    }
-    return 0;
-  }
-  if(key == KEY_EURO) {
-    if(on) {
-      Keyboard.press(KEY_RIGHT_ALT);
-      Keyboard.press(189);
-      delay(10);
-      Keyboard.releaseAll();
-    } else {
-      //Keyboard.release(189);
-      //Keyboard.release(KEY_RIGHT_ALT);
-    }
-    return 0;
-  }
   if(key == KEY_WORD_FORWARD) {
      if(on) {
       Keyboard.press(KEY_LEFT_CTRL);
@@ -323,18 +288,6 @@ inline int handleShortcuts(int key, boolean on) {
       //Keyboard.release(KEY_LEFT_CTRL);
       //Keyboard.release(KEY_LEFT_SHIFT);
       //Keyboard.release(122);
-    }
-    return 0;
-  }
-  if(key == KEY_PRINT) {
-    if(on) {      
-      Keyboard.press(38);
-      Keyboard.press(42);
-      delay(10);
-      Keyboard.releaseAll();
-    } else {
-      //Keyboard.release(38);
-      //Keyboard.release(42);
     }
     return 0;
   }

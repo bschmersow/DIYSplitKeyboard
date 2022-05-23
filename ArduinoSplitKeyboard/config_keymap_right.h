@@ -1,4 +1,4 @@
-/** WS2812 LED backlight config */
+ /** WS2812 LED backlight config */
 // If a LED circle backlight is present, configure this
 #define PIN 10 // The Control (I-Pin) of the WS2812 LED / NeoPixel
 #define NUMPIXELS 12 // Number od WS2812 LEDs / NeoPixel
@@ -111,7 +111,7 @@ int neo2_layer4[5][7] = {
 
 // custom layer currently same as base
 int neo2_layer5[5][7] = {
-   {KEY_TOGGLE_LAYER3,            55,             56,   57,           48,           KEY_S,               KEY_BACKSPACE},
+   {KEY_TOGGLE_LAYER3,            KEY_F7,             KEY_F8,   KEY_F9,           KEY_F10,           KEY_F11,               KEY_BACKSPACE},
    {KEY_TOGGLE_LED,   INCREASE_LED,            117,  KEY_UP_ARROW,          111,          112,              KEY_UE},
    {KEY_DELETE,    DECREASE_LED,            KEY_LEFT_ARROW,  KEY_DOWN_ARROW,          KEY_RIGHT_ARROW,          KEY_OE,              KEY_AE},
    {KEY_MOD_LAYER5,  0,         0,  44,           46,           47,        KEY_RIGHT_SHIFT}, // 47
